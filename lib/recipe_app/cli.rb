@@ -4,8 +4,7 @@ require 'open-uri'
 class RecipeApp::CLI
 
   def initialize
-    RecipeApp::Scraper_General.new.get_recipes  
-    RecipeApp::Scraper_Details.new.get_recipes  
+    RecipeApp::Scraper.new.get_recipes  
   end
 
   def start
@@ -26,7 +25,7 @@ class RecipeApp::CLI
     new_line
     print_divider_style_2
 
-    RecipeApp::Recipe_General.item_contents.each.with_index(1) do |item, i|
+    RecipeApp::Recipe.item_contents.each.with_index(1) do |item, i|
       puts "#{i}. #{item.title}"
     end
     prompt_item_selection
@@ -64,20 +63,67 @@ class RecipeApp::CLI
 
   def print_recipe_details input
     system("clear")
-    RecipeApp::Recipe_General.item_contents[input-1].print
-    RecipeApp::Recipe_Details.item_contents[input-1].print
-  prompt_user_general
-end
+    RecipeApp::Recipe.item_contents[input-1].print_recipe
+    prompt_user_general(input)
+  end
 
-  def prompt_user_general
-    new_line
-    print_divider_style_2
-    print_divider_style_2
-    puts "Input [index] to view go back the the index of recipes"
-    puts "Input any character to exit"
 
-    input = gets.strip.downcase
+  def prompt_user_general input
+    puts "=======================OPTIONS:======================="
+    puts "Enter [index] to go back to the index of recipes"
+    puts "Enter [what] to see the ingredients for this recipe"
+    puts "Enter [how] to see the instructions for this recipe"
+    option = gets.strip.downcase
+    if option === "index" 
+      menu_index
+    elsif option === "what"
+      print_recipe_ingredients(input)
+    elsif option === "how"
+      print_recipe_instructions(input)
+    end
+  end
 
-    input == "index" ? menu_index : exit
+  def prompt_recipe_ingredients input
+    puts "=======================OPTIONS:======================="
+    puts "Enter [yum] to go back to this recipe's general information"
+    puts "Enter [how] to see the instructions for this recipe"
+    puts "Enter any other character to exit"
+    option = gets.strip.downcase
+    if option === "yum" 
+      print_recipe_details(input)
+    elsif option === "how"
+      print_recipe_instructions(input)
+    else
+      exit
+    end
+  end
+
+  def print_recipe_ingredients input
+    RecipeApp::Recipe.item_contents[input-1].print_ingredients
+    puts ""
+    puts ""
+    prompt_recipe_ingredients(input)
+  end
+
+  def prompt_recipe_instructions input
+    puts "Enter [yum] to go back to this recipe's general information"
+    puts "Enter [what] to see the ingredients for this recipe"
+    puts "Enter any other character to exit."
+    puts ""
+    option = gets.strip.downcase
+    if option === "yum" 
+      print_recipe_details(input)
+    elsif option === "what"
+      print_recipe_ingredients(input)
+    else
+      exit
+    end
+  end
+
+  def print_recipe_instructions input
+    RecipeApp::Recipe.item_contents[input-1].print_instructions
+    puts ""
+    puts ""
+    prompt_recipe_instructions(input)
   end
 end

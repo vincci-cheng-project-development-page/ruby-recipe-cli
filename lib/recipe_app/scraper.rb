@@ -1,4 +1,4 @@
-class RecipeApp::Scraper_General
+class RecipeApp::Scraper
   BASE_URL = "https://www.bbcgoodfood.com"
 
   def get_page(url = BASE_URL+"/recipes/collection/all-time-top-20-recipes")
@@ -13,8 +13,12 @@ class RecipeApp::Scraper_General
     sleep(7)
 
     #scrape all the recipes 
+
     items = doc.css('li.dynamic-list__list-item').map do |item|
       print "="
+      title = item.css("h2.d-inline").text.strip
+      rating = item.css('div.rating').text.strip
+      summary = item.css('p.d-block').text.strip
       image_url = item.css('img').attr('src')
       url = item.css('a.d-block').attr("href").value
       doc = get_details_page url
@@ -24,7 +28,7 @@ class RecipeApp::Scraper_General
       content_ingredients = get_recipe_ingredients doc
       content_methods = get_recipe_methods doc
 
-      {url: url, content_time: content_time, content_difficulty: content_difficulty, content_servings: content_servings, content_ingredients: content_ingredients, content_methods: content_methods, image_url: image_url}
+      {title: title, rating: rating, summary: summary, url: url, content_time: content_time, content_difficulty: content_difficulty, content_servings: content_servings, content_ingredients: content_ingredients, content_methods: content_methods, image_url: image_url}
     end
 
     make_items items
@@ -64,9 +68,14 @@ class RecipeApp::Scraper_General
     recipe_methods_lines
   end
 
-  def make_items itemZ
-    itemZ.map {|it| RecipeApp::Recipe_Details.new it}
+  def make_items itemz
+    itemz.map {|it| RecipeApp::Recipe.new it}
   end
+
+  
+  
+  
+  
 
 end
 
